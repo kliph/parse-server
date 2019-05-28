@@ -328,3 +328,8 @@ export function removePoweredByHeader(_req, res, next) {
   res.removeHeader('X-Powered-By');
   next();
 }
+
+export function noSniff(_req, res, next) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  next();
+}
