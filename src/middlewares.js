@@ -333,3 +333,8 @@ export function noSniff(_req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   next();
 }
+
+export function useSTS(_req, res, next) {
+  res.setHeader('Strict-Transport-Security', 'max-age=15768000 ; includeSubDomains');
+  next();
+}
