@@ -1,6 +1,6 @@
 # Maintaining the fork
 ## Making a change to the source code
-Changes to the Parse Server source code will need to be built in the `lib/` directory by running `npm install` after making the changes.
+Changes to the Parse Server source code will need to be built in the `lib/` directory by running `npm run build` after making the changes.
 
 ![Parse Server logo](.github/parse-server-logo.png?raw=true)
 
