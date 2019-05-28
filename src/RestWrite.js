@@ -15,6 +15,16 @@ import RestQuery from './RestQuery';
 import _         from 'lodash';
 import logger    from './logger';
 
+function obfuscateError() {
+  throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, "Bad Request");
+}
+
+function obfuscateErrorWhenProd() {
+  if (process.env.PROD_CLOUD == 0) {
+    obfuscateError();
+  }
+}
+
 // query and data are both provided in REST API format. So data
 // types are encoded by plain old objects.
 // If query is null, this is a "create" and the data in data should be
@@ -286,6 +296,7 @@ RestWrite.prototype.handleAuthData = function(authData) {
       return !this.auth.isMaster && user.ACL && Object.keys(user.ACL).length > 0;
     });
     if (results.length > 1) {
+      obfuscateErrorWhenProd();
       // More than 1 user with the passed id's
       throw new Parse.Error(Parse.Error.ACCOUNT_ALREADY_LINKED,
         'this auth is already used');
@@ -352,6 +363,7 @@ RestWrite.prototype.handleAuthData = function(authData) {
         // Trying to update auth data but users
         // are different
         if (userResult.objectId !== userId) {
+          obfuscateErrorWhenProd();
           throw new Parse.Error(Parse.Error.ACCOUNT_ALREADY_LINKED,
             'this auth is already used');
         }
@@ -375,6 +387,7 @@ RestWrite.prototype.transformUser = function() {
   }
 
   if (!this.auth.isMaster && "emailVerified" in this.data) {
+    obfuscateErrorWhenProd();
     const error = `Clients aren't allowed to manually update email verification.`
     throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, error);
   }
@@ -440,6 +453,7 @@ RestWrite.prototype._validateUserName = function () {
     {limit: 1}
   ).then(results => {
     if (results.length > 0) {
+      obfuscateErrorWhenProd();
       throw new Parse.Error(Parse.Error.USERNAME_TAKEN, 'Account already exists for this username.');
     }
     return;
@@ -461,6 +475,7 @@ RestWrite.prototype._validateEmail = function() {
     {limit: 1}
   ).then(results => {
     if (results.length > 0) {
+      obfuscateErrorWhenProd();
       throw new Parse.Error(Parse.Error.EMAIL_TAKEN, 'Account already exists for this email address.');
     }
     if (
@@ -1049,10 +1064,12 @@ RestWrite.prototype.runDatabaseOperation = function() {
 
         // Quick check, if we were able to infer the duplicated field name
         if (error && error.userInfo && error.userInfo.duplicated_field === 'username') {
+          obfuscateErrorWhenProd();
           throw new Parse.Error(Parse.Error.USERNAME_TAKEN, 'Account already exists for this username.');
         }
 
         if (error && error.userInfo && error.userInfo.duplicated_field === 'email') {
+          obfuscateErrorWhenProd();
           throw new Parse.Error(Parse.Error.EMAIL_TAKEN, 'Account already exists for this email address.');
         }
 
@@ -1067,6 +1084,7 @@ RestWrite.prototype.runDatabaseOperation = function() {
         )
           .then(results => {
             if (results.length > 0) {
+              obfuscateErrorWhenProd();
               throw new Parse.Error(Parse.Error.USERNAME_TAKEN, 'Account already exists for this username.');
             }
             return this.config.database.find(
@@ -1077,6 +1095,7 @@ RestWrite.prototype.runDatabaseOperation = function() {
           })
           .then(results => {
             if (results.length > 0) {
+              obfuscateErrorWhenProd();
               throw new Parse.Error(Parse.Error.EMAIL_TAKEN, 'Account already exists for this email address.');
             }
             throw new Parse.Error(Parse.Error.DUPLICATE_VALUE, 'A duplicate value for a field with unique values was provided');
