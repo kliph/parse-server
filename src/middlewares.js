@@ -323,3 +323,8 @@ function invalidRequest(req, res) {
   res.status(403);
   res.end('{"error":"unauthorized"}');
 }
+
+export function removePoweredByHeader(_req, res, next) {
+  res.removeHeader('X-Powered-By');
+  next();
+}
