@@ -1,4 +1,5 @@
 # Maintaining the fork
+The most up-to-date version of the code lives on a branch called `fork`.
 ## Making a change to the source code
 Changes to the Parse Server source code will need to be built in the `lib/` directory by running `npm run build` after making the changes.
 
